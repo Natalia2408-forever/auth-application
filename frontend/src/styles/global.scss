@@ -1,0 +1,8 @@
+@import './variables';
+@import './reset';
+
+body {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  color: $text-main;
+  background: $white;
+}
