@@ -1,20 +1,12 @@
 import { User } from '../models/user.js';
 import { ApiError } from '../exeptions/api.error.js';
 
-function getAll() {
-  return User.findAll({});
-}
-
 function normalize({ id, email, name }) {
   return { id, email, name };
 }
 
 function findByEmail(email) {
   return User.findOne({ where: { email } });
-}
-
-function findById(id) {
-  return User.findByPk(id);
 }
 
 async function register(name, email, hashedPassword) {
@@ -36,9 +28,7 @@ async function register(name, email, hashedPassword) {
 }
 
 export const userService = {
-  getAll,
   normalize,
   findByEmail,
-  findById,
   register,
 };

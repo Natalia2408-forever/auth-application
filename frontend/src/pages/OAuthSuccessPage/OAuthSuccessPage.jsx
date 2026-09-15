@@ -9,7 +9,7 @@ import { ROUTES } from '../../router/routes.js';
 export const OAuthSuccessPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { checkAuth } = useContext(AuthContext);
+  const { isChecked, user } = useContext(AuthContext);
 
   useEffect(() => {
     const accessToken = searchParams.get('accessToken');
@@ -20,15 +20,15 @@ export const OAuthSuccessPage = () => {
     }
 
     accessTokenService.save(accessToken);
+  }, [searchParams, navigate]);
 
-    checkAuth()
-      .then(() => {
-        navigate(ROUTES.todos, { replace: true });
-      })
-      .catch(() => {
-        navigate(ROUTES.login, { replace: true });
-      });
-  }, [navigate, searchParams, checkAuth]);
+  useEffect(() => {
+    if (!isChecked) {
+      return;
+    }
+
+    navigate(user ? ROUTES.todos : ROUTES.login, { replace: true });
+  }, [isChecked, user, navigate]);
 
   return <Loader />;
 };

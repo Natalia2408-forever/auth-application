@@ -28,7 +28,7 @@ async function findOrCreateOAuthUser({ provider, providerId, email, name }) {
     name,
     email,
     [providerField]: providerId,
-    });
+  });
 }
 
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {

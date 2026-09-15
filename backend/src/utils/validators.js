@@ -21,5 +21,9 @@ export function validatePassword(value) {
     return 'Password must be at least 6 characters long';
   }
 
+  if (!/[A-Za-z]/.test(value) || !/\d/.test(value)) {
+    return 'Password must contain at least one letter and one digit';
+  }
+
   return null;
 }

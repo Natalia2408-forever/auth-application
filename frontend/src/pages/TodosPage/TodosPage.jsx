@@ -1,5 +1,6 @@
 import { useContext } from 'react';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { AppHeader } from '../../components/AppHeader';
 import { AuthContext } from '../../components/AuthContext';
 import { FILTERS, useTodos } from '../../hooks/useTodos.js';
@@ -98,7 +99,7 @@ export const TodosPage = () => {
                       className={`${styles.statusCircle} ${todo.completed ? styles.statusCircleChecked : ''}`}
                     >
                       {todo.completed && (
-                        <i className="fa-solid fa-check" aria-hidden="true" />
+                        <FontAwesomeIcon icon={faCheck} aria-hidden="true" />
                       )}
                     </span>
                     <span className={styles.visuallyHidden}>

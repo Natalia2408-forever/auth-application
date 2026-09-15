@@ -1,6 +1,8 @@
 import { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Formik, Form, Field } from 'formik';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser, faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
 import cn from 'classnames';
 
 import { authService } from '../../services/authService.js';
@@ -63,10 +65,12 @@ export const RegistrationPage = () => {
               </label>
 
               <div className={styles.inputWrapper}>
-                <i
-                  className={`fa-solid fa-user ${styles.icon}`}
+                <FontAwesomeIcon
+                  icon={faUser}
+                  className={styles.icon}
                   aria-hidden="true"
                 />
+
                 <Field
                   validate={validateName}
                   name="name"
@@ -91,10 +95,12 @@ export const RegistrationPage = () => {
               </label>
 
               <div className={styles.inputWrapper}>
-                <i
-                  className={`fa-solid fa-envelope ${styles.icon}`}
+                <FontAwesomeIcon
+                  icon={faEnvelope}
+                  className={styles.icon}
                   aria-hidden="true"
                 />
+
                 <Field
                   validate={validateEmail}
                   name="email"
@@ -119,10 +125,12 @@ export const RegistrationPage = () => {
               </label>
 
               <div className={styles.inputWrapper}>
-                <i
-                  className={`fa-solid fa-lock ${styles.icon}`}
+                <FontAwesomeIcon
+                  icon={faLock}
+                  className={styles.icon}
                   aria-hidden="true"
                 />
+
                 <Field
                   validate={validatePassword}
                   name="password"
@@ -149,10 +157,12 @@ export const RegistrationPage = () => {
               </label>
 
               <div className={styles.inputWrapper}>
-                <i
-                  className={`fa-solid fa-lock ${styles.icon}`}
+                <FontAwesomeIcon
+                  icon={faLock}
+                  className={styles.icon}
                   aria-hidden="true"
                 />
+
                 <Field
                   validate={value =>
                     validatePasswordConfirmation(value, values.password)

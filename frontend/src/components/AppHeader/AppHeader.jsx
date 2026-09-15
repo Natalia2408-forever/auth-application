@@ -1,5 +1,7 @@
 import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircleNotch } from '@fortawesome/free-solid-svg-icons';
 import { AuthContext } from '../AuthContext';
 import { ROUTES } from '../../router/routes.js';
 import styles from './AppHeader.module.scss';
@@ -20,7 +22,7 @@ export const AppHeader = () => {
   return (
     <header className={styles.header}>
       <div className={styles.logo}>
-        <i className="fa-solid fa-circle-notch" aria-hidden="true" />
+        <FontAwesomeIcon icon={faCircleNotch} aria-hidden="true" />
         <span>Todoapp</span>
       </div>
       <div className={styles.right}>

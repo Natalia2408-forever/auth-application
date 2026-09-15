@@ -1,15 +1,35 @@
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 import { catchError } from '../utils/catchError.js';
 import { authController } from '../controllers/auth.controller.js';
 import { authMiddleware } from '../middlewares/authMiddleware.js';
 import { passport, enabledOAuthProviders } from '../config/passport.js';
 
+function makeLimiter(limit) {
+  return rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { message: 'Too many attempts, please try again later' },
+  });
+}
+
+const registrationLimiter = makeLimiter(20);
+const loginLimiter = makeLimiter(20);
+const refreshLimiter = makeLimiter(60);
+
 export const authRouter = new express.Router();
 
-authRouter.post('/registration', catchError(authController.register));
+authRouter.post(
+  '/registration',
+  registrationLimiter,
+  catchError(authController.register),
+);
 
-authRouter.post('/login', catchError(authController.login));
-authRouter.get('/refresh', catchError(authController.refresh));
+authRouter.post('/login', loginLimiter, catchError(authController.login));
+authRouter.get('/refresh', refreshLimiter, catchError(authController.refresh));
+
 authRouter.post('/logout', authMiddleware, catchError(authController.logout));
 
 function registerOAuthRoutes(provider, scope) {

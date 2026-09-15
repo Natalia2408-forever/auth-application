@@ -1,26 +1,22 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faGoogle,
+  faFacebook,
+  faGithub,
+} from '@fortawesome/free-brands-svg-icons';
 import styles from './SocialAuthButtons.module.scss';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 const PROVIDERS = [
-  {
-    key: 'google',
-    label: 'Google',
-    icon: 'fa-brands fa-google',
-    className: 'google',
-  },
+  { key: 'google', label: 'Google', icon: faGoogle, className: 'google' },
   {
     key: 'facebook',
     label: 'Facebook',
-    icon: 'fa-brands fa-facebook',
+    icon: faFacebook,
     className: 'facebook',
   },
-  {
-    key: 'github',
-    label: 'GitHub',
-    icon: 'fa-brands fa-github',
-    className: 'github',
-  },
+  { key: 'github', label: 'GitHub', icon: faGithub, className: 'github' },
 ];
 
 export const SocialAuthButtons = () => {
@@ -42,7 +38,7 @@ export const SocialAuthButtons = () => {
             className={`${styles.btn} ${styles[className]}`}
             onClick={() => goToProvider(key)}
           >
-            <i className={icon} />
+            <FontAwesomeIcon icon={icon} />
             <span>{label}</span>
           </button>
         ))}

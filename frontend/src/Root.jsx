@@ -1,40 +1,47 @@
-import { useContext } from 'react';
+import { useContext, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { App } from './App.jsx';
 import { AuthContext } from './components/AuthContext/AuthContext.jsx';
 import { RequireAuth } from './components/RequireAuth/RequireAuth.jsx';
 import { RequireNonAuth } from './components/RequiereNonAuth/RequireNonAuth.jsx';
-import { LoginPage } from './pages/LoginPage/LoginPage.jsx';
-import { RegistrationPage } from './pages/RegistrationPage/RegistrationPage.jsx';
-import { OAuthSuccessPage } from './pages/OAuthSuccessPage/OAuthSuccessPage.jsx';
-import { TodosPage } from './pages/TodosPage/TodosPage.jsx';
-import { NotFoundPage } from './pages/NotFoundPage/NotFoundPage.jsx';
+import { Loader } from './components/Loader/Loader.jsx';
 import { ROUTES } from './router/routes.js';
+import {
+  LoginPage,
+  RegistrationPage,
+  OAuthSuccessPage,
+  TodosPage,
+  NotFoundPage,
+} from './router/lazyPages.js';
 
 export const Root = () => {
   const { user } = useContext(AuthContext);
 
   return (
-    <Routes>
-      <Route path="/" element={<App />}>
-        <Route
-          index
-          element={<Navigate to={user ? ROUTES.todos : ROUTES.login} replace />}
-        />
+    <Suspense fallback={<Loader />}>
+      <Routes>
+        <Route path="/" element={<App />}>
+          <Route
+            index
+            element={
+              <Navigate to={user ? ROUTES.todos : ROUTES.login} replace />
+            }
+          />
 
-        <Route element={<RequireNonAuth />}>
-          <Route path={ROUTES.login} element={<LoginPage />} />
-          <Route path={ROUTES.register} element={<RegistrationPage />} />
+          <Route element={<RequireNonAuth />}>
+            <Route path={ROUTES.login} element={<LoginPage />} />
+            <Route path={ROUTES.register} element={<RegistrationPage />} />
+          </Route>
+
+          <Route path={ROUTES.oauthSuccess} element={<OAuthSuccessPage />} />
+
+          <Route element={<RequireAuth />}>
+            <Route path={ROUTES.todos} element={<TodosPage />} />
+          </Route>
+
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
-
-        <Route path={ROUTES.oauthSuccess} element={<OAuthSuccessPage />} />
-
-        <Route element={<RequireAuth />}>
-          <Route path={ROUTES.todos} element={<TodosPage />} />
-        </Route>
-
-        <Route path="*" element={<NotFoundPage />} />
-      </Route>
-    </Routes>
+      </Routes>
+    </Suspense>
   );
 };

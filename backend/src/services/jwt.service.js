@@ -6,9 +6,7 @@ function sign(user) {
 }
 
 function signRefresh(user) {
-  return jwt.sign(user, process.env.JWT_REFRESH_KEY || 'refresh_secret', {
-    expiresIn: '30d',
-  });
+  return jwt.sign(user, process.env.JWT_REFRESH_KEY, { expiresIn: '30d' });
 }
 
 function verify(token) {
@@ -21,7 +19,7 @@ function verify(token) {
 
 function verifyRefresh(token) {
   try {
-    return jwt.verify(token, process.env.JWT_REFRESH_KEY || 'refresh_secret');
+    return jwt.verify(token, process.env.JWT_REFRESH_KEY);
   } catch {
     return null;
   }

@@ -2,7 +2,8 @@ import { useContext } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Formik, Form, Field } from 'formik';
 import cn from 'classnames';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
 import { AuthContext } from '../../components/AuthContext';
 import { AuthLayout } from '../../components/AuthLayout';
 import { SocialAuthButtons } from '../../components/SocialAuthButtons';
@@ -46,8 +47,9 @@ export const LoginPage = () => {
               </label>
 
               <div className={styles.inputWrapper}>
-                <i
-                  className={`fa-solid fa-envelope ${styles.icon}`}
+                <FontAwesomeIcon
+                  icon={faEnvelope}
+                  className={styles.icon}
                   aria-hidden="true"
                 />
                 <Field
@@ -74,8 +76,9 @@ export const LoginPage = () => {
               </label>
 
               <div className={styles.inputWrapper}>
-                <i
-                  className={`fa-solid fa-lock ${styles.icon}`}
+                <FontAwesomeIcon
+                  icon={faLock}
+                  className={styles.icon}
                   aria-hidden="true"
                 />
                 <Field

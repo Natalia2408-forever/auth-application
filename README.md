@@ -17,6 +17,8 @@ Backend
 * bcrypt – password hashing.
 * Passport.js – Google, Facebook and GitHub OAuth strategies.
 * cookie-parser & cors – handling httpOnly refresh-token cookies across origins.
+* express-rate-limit – rate limiting on /login, /registration, /refresh to slow down brute-force attempts.
+* Jest – unit tests for the auth controller (registration, login, refresh, logout).
 
 Frontend
 * React – built with functional components and Hooks (useState, useEffect, useContext) for a dynamic UI.
@@ -24,7 +26,7 @@ Frontend
 * Axios – HTTP client with credentials support for cookie-based refresh flow.
 * Formik – form state and validation.
 * SCSS (modules) – component-scoped, responsive styling.
-* Font Awesome – icons for social login buttons and UI elements.
+* Font Awesome (@fortawesome/react-fontawesome) – only the specific icons actually used, imported individually instead of the full icon library.
 * Vite – fast dev server and build tool.
 
 🎯 Key Features
@@ -53,3 +55,8 @@ Frontend:
 * npm install
 * Create a .env file with VITE_API_URL pointing to your backend (e.g. http://localhost:3005)
 * npm start
+
+🧪 Tests
+* cd backend
+* npm install
+* npm test

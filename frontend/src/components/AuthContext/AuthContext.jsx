@@ -1,4 +1,4 @@
-import { createContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useEffect, useMemo, useState, useRef } from 'react';
 import { accessTokenService } from '../../services/accessTokenService.js';
 import { authService } from '../../services/authService.js';
 
@@ -8,22 +8,31 @@ export const AuthContext = createContext({});
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isChecked, setChecked] = useState(false);
+  const refreshPromiseRef = useRef(null);
 
-  async function checkAuth() {
-    try {
-      const { accessToken, user } = await authService.refresh();
-
-      accessTokenService.save(accessToken);
-      setUser(user);
-    } catch {
-      setUser(null);
-    } finally {
-      setChecked(true);
+  function checkAuth() {
+    if (refreshPromiseRef.current) {
+      return refreshPromiseRef.current;
     }
+
+    refreshPromiseRef.current = authService
+      .refresh()
+      .then(({ accessToken, user }) => {
+        accessTokenService.save(accessToken);
+        setUser(user);
+      })
+      .catch(() => {
+        setUser(null);
+      })
+      .finally(() => {
+        setChecked(true);
+        refreshPromiseRef.current = null;
+      });
+
+    return refreshPromiseRef.current;
   }
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     checkAuth();
   }, []);
 

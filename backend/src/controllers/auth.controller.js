@@ -50,20 +50,12 @@ const login = async (req, res) => {
   const { email, password } = req.body;
   const user = await userService.findByEmail(email);
 
-  if (!user) {
-    throw ApiError.badRequest('No such user');
-  }
-
-  if (!user.password) {
-    throw ApiError.badRequest(
-      'This account uses social login. Please sign in with Google/Facebook/GitHub',
-    );
-  }
-
-  const isPasswordValid = await bcrypt.compare(password, user.password);
+  const isPasswordValid = user?.password
+    ? await bcrypt.compare(password, user.password)
+    : false;
 
   if (!isPasswordValid) {
-    throw ApiError.badRequest('Wrong password');
+    throw ApiError.badRequest('Invalid email or password');
   }
 
   const data = await generateTokens(res, user);

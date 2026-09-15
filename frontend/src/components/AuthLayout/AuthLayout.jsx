@@ -1,4 +1,6 @@
-import authCover from '../../images/auth-cover.jpg';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircleNotch } from '@fortawesome/free-solid-svg-icons';
+import authCover from '../../images/auth-cover.webp';
 import styles from './AuthLayout.module.scss';
 
 export const AuthLayout = ({ children }) => (
@@ -11,7 +13,7 @@ export const AuthLayout = ({ children }) => (
       <div className={styles.card}>
         <div className={styles.logo}>
           <span className={styles.logoIcon}>
-            <i className="fa-solid fa-circle-notch" aria-hidden="true" />
+            <FontAwesomeIcon icon={faCircleNotch} aria-hidden="true" />
           </span>
           <span>Todoapp</span>
         </div>
