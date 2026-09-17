@@ -1,4 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import {
   faGoogle,
   faFacebook,
@@ -8,7 +9,16 @@ import styles from './SocialAuthButtons.module.scss';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const PROVIDERS = [
+type Provider = 'google' | 'facebook' | 'github';
+
+interface ProviderOption {
+  key: Provider;
+  label: string;
+  icon: IconDefinition;
+  className: string;
+}
+
+const PROVIDERS: ProviderOption[] = [
   { key: 'google', label: 'Google', icon: faGoogle, className: 'google' },
   {
     key: 'facebook',
@@ -20,7 +30,7 @@ const PROVIDERS = [
 ];
 
 export const SocialAuthButtons = () => {
-  const goToProvider = provider => {
+  const goToProvider = (provider: Provider) => {
     window.location.assign(`${API_URL}/auth/${provider}`);
   };
 

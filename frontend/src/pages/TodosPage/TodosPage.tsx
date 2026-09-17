@@ -1,12 +1,12 @@
 import { useContext } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
-import { AppHeader } from '../../components/AppHeader';
+import { AppHeader } from '../../components/AppHeader/AppHeader';
 import { AuthContext } from '../../components/AuthContext';
-import { FILTERS, useTodos } from '../../hooks/useTodos.js';
+import { FILTERS, useTodos, type Filter } from '../../hooks/useTodos';
 import styles from './TodosPage.module.scss';
 
-const FILTER_OPTIONS = [
+const FILTER_OPTIONS: { value: Filter; label: string }[] = [
   { value: FILTERS.all, label: 'All' },
   { value: FILTERS.active, label: 'Active' },
   { value: FILTERS.completed, label: 'Completed' },
@@ -19,8 +19,7 @@ export const TodosPage = () => {
     visibleTodos,
     title,
     setTitle,
-    error,
-    setError,
+    titleError,
     filter,
     setFilter,
     activeCount,
@@ -33,7 +32,9 @@ export const TodosPage = () => {
   } = useTodos(user);
 
   return (
-    <>
+    <div className={styles.page}>
+      <div className={styles.leafDecor} aria-hidden="true" />
+
       <AppHeader />
       <div className={styles.wrapper}>
         <h2 className={styles.title}>My tasks</h2>
@@ -60,22 +61,18 @@ export const TodosPage = () => {
               placeholder="What needs to be done?"
               value={title}
               autoComplete="off"
-              aria-describedby={error ? 'new-todo-error' : undefined}
-              onChange={event => {
-                setTitle(event.target.value);
-                setError('');
-              }}
+              onChange={event => setTitle(event.target.value)}
             />
-            <button type="submit" className={styles.addBtn}>
+            <button
+              type="submit"
+              className={`${styles.addBtn} ${!title.trim() ? styles.addBtnDisabled : ''}`}
+              aria-disabled={!title.trim()}
+            >
               Add
             </button>
           </form>
 
-          {error && (
-            <p id="new-todo-error" className={styles.error} role="alert">
-              {error}
-            </p>
-          )}
+          {titleError && <p className={styles.titleError}>{titleError}</p>}
 
           {todos.length > 0 && (
             <ul className={styles.list}>
@@ -160,6 +157,6 @@ export const TodosPage = () => {
           )}
         </div>
       </div>
-    </>
+    </div>
   );
 };

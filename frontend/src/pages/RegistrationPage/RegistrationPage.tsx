@@ -6,9 +6,9 @@ import { faUser, faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
 import cn from 'classnames';
 
 import { authService } from '../../services/authService.js';
-import { AuthContext } from '../../components/AuthContext';
-import { AuthLayout } from '../../components/AuthLayout';
-import { SocialAuthButtons } from '../../components/SocialAuthButtons';
+import { AuthContext } from '../../components/AuthContext/index.js';
+import { AuthLayout } from '../../components/AuthLayout/index.js';
+import { SocialAuthButtons } from '../../components/SocialAuthButtons/index.js';
 import { usePageError } from '../../hooks/usePageError.js';
 import { ROUTES } from '../../router/routes.js';
 import {
@@ -54,7 +54,7 @@ export const RegistrationPage = () => {
             .finally(() => formikHelpers.setSubmitting(false));
         }}
       >
-        {({ touched, errors, isSubmitting, values }) => (
+        {({ touched, errors, isSubmitting, values, isValid }) => (
           <Form>
             <h2 className={styles.title}>Sign up</h2>
             <p className={styles.subtitle}>Create an account to get started</p>
@@ -147,7 +147,9 @@ export const RegistrationPage = () => {
               {touched.password && errors.password ? (
                 <p className={styles.help}>{errors.password}</p>
               ) : (
-                <p className={styles.hint}>At least 6 characters</p>
+                <p className={styles.hint}>
+                  At least 6 characters, with a letter and a number
+                </p>
               )}
             </div>
 
@@ -164,7 +166,7 @@ export const RegistrationPage = () => {
                 />
 
                 <Field
-                  validate={value =>
+                  validate={(value: string) =>
                     validatePasswordConfirmation(value, values.password)
                   }
                   name="passwordConfirmation"
@@ -188,13 +190,7 @@ export const RegistrationPage = () => {
             <button
               type="submit"
               className={styles.submit}
-              disabled={
-                isSubmitting ||
-                Boolean(errors.email) ||
-                Boolean(errors.password) ||
-                Boolean(errors.name) ||
-                Boolean(errors.passwordConfirmation)
-              }
+              disabled={isSubmitting || !isValid}
             >
               {isSubmitting ? 'Signing up...' : 'Sign up'}
             </button>

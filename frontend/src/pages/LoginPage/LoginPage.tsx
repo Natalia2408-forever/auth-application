@@ -1,45 +1,53 @@
 import { useContext } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Formik, Form, Field } from 'formik';
-import cn from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
+import cn from 'classnames';
+
 import { AuthContext } from '../../components/AuthContext';
 import { AuthLayout } from '../../components/AuthLayout';
 import { SocialAuthButtons } from '../../components/SocialAuthButtons';
-import { usePageError } from '../../hooks/usePageError.js';
-import { ROUTES } from '../../router/routes.js';
-import { validateEmail, validatePassword } from '../../utils/validators.js';
+import { usePageError } from '../../hooks/usePageError';
+import { ROUTES } from '../../router/routes';
+import { validateEmail, validateLoginPassword } from '../../utils/validators';
 import styles from '../../styles/authForm.module.scss';
+
+interface LoginFormValues {
+  email: string;
+  password: string;
+}
 
 export const LoginPage = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const [error, setError] = usePageError('');
   const { login } = useContext(AuthContext);
 
   return (
     <AuthLayout>
-      <Formik
-        initialValues={{ email: '', password: '' }}
+      <Formik<LoginFormValues>
+        initialValues={{
+          email: '',
+          password: '',
+        }}
         validateOnMount
-        onSubmit={({ email, password }, formikHelpers) =>
+        onSubmit={({ email, password }, formikHelpers) => {
+          formikHelpers.setSubmitting(true);
+
           login({ email, password })
-            .then(() =>
-              navigate(location.state?.from?.pathname || ROUTES.todos),
-            )
-            .catch(err => {
-              setError(err.response?.data?.message || 'Something went wrong');
-              formikHelpers.setFieldValue('password', '');
+            .then(() => navigate(ROUTES.todos))
+            .catch((err: any) => {
+              const data = err.response?.data;
+
+              setError(data?.message || 'Invalid email or password');
             })
-        }
+            .finally(() => formikHelpers.setSubmitting(false));
+        }}
       >
-        {({ touched, errors, isSubmitting }) => (
+        {({ touched, errors, isSubmitting, isValid }) => (
           <Form>
-            <h2 className={styles.title}>Sign in</h2>
-            <p className={styles.subtitle}>
-              Enter your login details to sign in
-            </p>
+            <h2 className={styles.title}>Log in</h2>
+            <p className={styles.subtitle}>Welcome back, please log in</p>
 
             <div className={styles.field}>
               <label htmlFor="email" className={styles.label}>
@@ -52,6 +60,7 @@ export const LoginPage = () => {
                   className={styles.icon}
                   aria-hidden="true"
                 />
+
                 <Field
                   validate={validateEmail}
                   name="email"
@@ -81,13 +90,14 @@ export const LoginPage = () => {
                   className={styles.icon}
                   aria-hidden="true"
                 />
+
                 <Field
-                  validate={validatePassword}
+                  validate={validateLoginPassword}
                   name="password"
                   type="password"
                   id="password"
-                  autoComplete="current-password"
                   placeholder="••••••••"
+                  autoComplete="current-password"
                   className={cn(styles.input, {
                     [styles.inputDanger]: touched.password && errors.password,
                   })}
@@ -102,17 +112,13 @@ export const LoginPage = () => {
             <button
               type="submit"
               className={styles.submit}
-              disabled={
-                isSubmitting ||
-                Boolean(errors.email) ||
-                Boolean(errors.password)
-              }
+              disabled={isSubmitting || !isValid}
             >
-              {isSubmitting ? 'Signing in...' : 'Sign in'}
+              {isSubmitting ? 'Logging in...' : 'Log in'}
             </button>
 
             <p className={styles.switch}>
-              Don&apos;t have an account yet?{' '}
+              Don&apos;t have an account?{' '}
               <Link to={ROUTES.register}>Sign up</Link>
             </p>
           </Form>

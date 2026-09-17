@@ -4,4 +4,4 @@ export const ROUTES = {
   register: '/sign-up',
   oauthSuccess: '/oauth-success',
   todos: '/todos',
-};
+} as const;

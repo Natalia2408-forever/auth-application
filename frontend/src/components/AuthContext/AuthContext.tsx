@@ -1,16 +1,34 @@
-import { createContext, useEffect, useMemo, useState, useRef } from 'react';
-import { accessTokenService } from '../../services/accessTokenService.js';
-import { authService } from '../../services/authService.js';
+import {
+  createContext,
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+  type ReactNode,
+} from 'react';
+import { accessTokenService } from '../../services/accessTokenService';
+import { authService } from '../../services/authService';
+import type { User, Credentials } from '../../types/types';
+
+interface AuthContextValue {
+  isChecked: boolean;
+  user: User | null;
+  checkAuth: () => Promise<void>;
+  login: (credentials: Credentials) => Promise<void>;
+  logout: () => Promise<void>;
+}
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const AuthContext = createContext({});
+export const AuthContext = createContext<AuthContextValue>(
+  {} as AuthContextValue,
+);
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [user, setUser] = useState<User | null>(null);
   const [isChecked, setChecked] = useState(false);
-  const refreshPromiseRef = useRef(null);
+  const refreshPromiseRef = useRef<Promise<void> | null>(null);
 
-  function checkAuth() {
+  function checkAuth(): Promise<void> {
     if (refreshPromiseRef.current) {
       return refreshPromiseRef.current;
     }
@@ -36,7 +54,7 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
-  async function login({ email, password }) {
+  async function login({ email, password }: Credentials) {
     const { accessToken, user } = await authService.login({ email, password });
 
     accessTokenService.save(accessToken);

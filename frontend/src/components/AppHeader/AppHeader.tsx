@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleNotch } from '@fortawesome/free-solid-svg-icons';
 import { AuthContext } from '../AuthContext';
-import { ROUTES } from '../../router/routes.js';
+import { ROUTES } from '../../router/routes';
 import styles from './AppHeader.module.scss';
 
 export const AppHeader = () => {

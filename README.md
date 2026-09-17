@@ -47,13 +47,13 @@ Clone repository:
 Backend:
 * cd backend
 * npm install
-* Create a .env file with your database, JWT secrets and OAuth credentials
+* Copy .env.example to .env and fill in your own values
 * npm run dev
 
 Frontend:
 * cd frontend
 * npm install
-* Create a .env file with VITE_API_URL pointing to your backend (e.g. http://localhost:3005)
+* Copy .env.example to .env and fill in your own values
 * npm start
 
 🧪 Tests

@@ -1,13 +1,14 @@
-import { createClient } from './createClient.js';
-import { authService } from '../services/authService.js';
-import { accessTokenService } from '../services/accessTokenService.js';
+import type { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import { createClient } from './createClient';
+import { authService } from '../services/authService';
+import { accessTokenService } from '../services/accessTokenService';
 
 export const httpClient = createClient();
 
 httpClient.interceptors.request.use(onRequest);
 httpClient.interceptors.response.use(onResponseSuccess, onResponseError);
 
-function onRequest(request) {
+function onRequest(request: InternalAxiosRequestConfig) {
   const accessToken = accessTokenService.get();
 
   if (accessToken) {
@@ -17,14 +18,14 @@ function onRequest(request) {
   return request;
 }
 
-function onResponseSuccess(res) {
+function onResponseSuccess(res: any) {
   return res.data;
 }
 
-async function onResponseError(error) {
+async function onResponseError(error: AxiosError) {
   const originalRequest = error.config;
 
-  if (!error.response || error.response.status !== 401) {
+  if (!error.response || error.response.status !== 401 || !originalRequest) {
     throw error;
   }
 

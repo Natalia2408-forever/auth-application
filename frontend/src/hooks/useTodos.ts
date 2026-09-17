@@ -1,40 +1,45 @@
 import { useEffect, useMemo, useState } from 'react';
-import { loadTodos, saveTodos } from '../utils/todosStorage.js';
+import { loadTodos, saveTodos } from '../utils/todosStorage';
+import { usePageError } from './usePageError';
+import type { User, Todo } from '../types/types';
 
-export const FILTERS = { all: 'all', active: 'active', completed: 'completed' };
+export const FILTERS = {
+  all: 'all',
+  active: 'active',
+  completed: 'completed',
+} as const;
+export type Filter = (typeof FILTERS)[keyof typeof FILTERS];
 
-export function useTodos(user) {
-  const [todos, setTodos] = useState(() => loadTodos(user));
+export function useTodos(user: User | null) {
+  const [todos, setTodos] = useState<Todo[]>(() => loadTodos(user));
   const [title, setTitle] = useState('');
-  const [error, setError] = useState('');
-  const [filter, setFilter] = useState(FILTERS.all);
+  const [filter, setFilter] = useState<Filter>(FILTERS.all);
+  const [titleError, setTitleError] = usePageError('');
 
   useEffect(() => {
     saveTodos(user, todos);
   }, [todos, user]);
 
-  const handleAddTodo = event => {
+  const handleAddTodo = (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const trimmedTitle = title.trim();
+
     if (!trimmedTitle) {
-      setError('Enter text of a task');
+      setTitleError('Please enter text');
+
       return;
     }
 
     setTodos(current => [
       ...current,
-      {
-        id: Date.now(),
-        title: trimmedTitle,
-        completed: false,
-      },
+      { id: Date.now(), title: trimmedTitle, completed: false },
     ]);
+
     setTitle('');
-    setError('');
   };
 
-  const handleToggle = id => {
+  const handleToggle = (id: number) => {
     setTodos(current =>
       current.map(todo =>
         todo.id === id ? { ...todo, completed: !todo.completed } : todo,
@@ -49,7 +54,7 @@ export function useTodos(user) {
     );
   };
 
-  const handleRemove = id => {
+  const handleRemove = (id: number) => {
     setTodos(current => current.filter(todo => todo.id !== id));
   };
 
@@ -61,6 +66,7 @@ export function useTodos(user) {
     () => todos.filter(todo => !todo.completed).length,
     [todos],
   );
+
   const completedCount = todos.length - activeCount;
 
   const visibleTodos = useMemo(
@@ -76,6 +82,7 @@ export function useTodos(user) {
 
         return true;
       }),
+
     [todos, filter],
   );
 
@@ -84,8 +91,7 @@ export function useTodos(user) {
     visibleTodos,
     title,
     setTitle,
-    error,
-    setError,
+    titleError,
     filter,
     setFilter,
     activeCount,

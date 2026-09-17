@@ -1,4 +1,4 @@
-import { createClient } from './createClient.js';
+import { createClient } from './createClient';
 
 export const authClient = createClient();
 

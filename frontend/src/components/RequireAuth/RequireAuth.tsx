@@ -1,10 +1,11 @@
+import type { ReactNode } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useContext } from 'react';
 import { AuthContext } from '../AuthContext';
-import { Loader } from '../Loader/Loader.jsx';
-import { ROUTES } from '../../router/routes.js';
+import { Loader } from '../Loader/Loader';
+import { ROUTES } from '../../router/routes';
 
-export const RequireAuth = ({ children }) => {
+export const RequireAuth = ({ children }: { children?: ReactNode }) => {
   const { isChecked, user } = useContext(AuthContext);
   const location = useLocation();
 
