@@ -4,6 +4,7 @@ import { userService } from '../services/user.service.js';
 import { jwtService } from '../services/jwt.service.js';
 import { tokenService } from '../services/token.service.js';
 import { validateEmail, validatePassword } from '../utils/validators.js';
+import { facebookAuthCache } from '../utils/facebookAuthCache.js';
 
 async function generateTokens(res, user) {
   const normalizedUser = userService.normalize(user);
@@ -100,11 +101,44 @@ const logout = async (req, res) => {
 };
 
 const oauthCallback = async (req, res) => {
-  const { accessToken } = await generateTokens(res, req.user);
+  const { user, accessToken } = await generateTokens(res, req.user);
+
+  const { code } = req.query;
+
+  if (code) {
+    facebookAuthCache.setUserId(code, user.id);
+  }
 
   res.redirect(
     `${process.env.CLIENT_APP_URL}/#/oauth-success?accessToken=${accessToken}`,
   );
+};
+
+// Called from the facebookCallbackGuard middleware when a Facebook `code`
+// has already been used once. Instead of rejecting the duplicate request,
+// we issue a fresh session (cookie + accessToken) for the same user, so
+// whichever of the two requests actually reaches the user's browser works.
+const reissueFacebookSession = async (req, res) => {
+  const { code } = req.query;
+  const cachedUserId = code ? facebookAuthCache.getUserId(code) : null;
+
+  if (!cachedUserId) {
+    return false;
+  }
+
+  const user = await userService.findById(cachedUserId);
+
+  if (!user) {
+    return false;
+  }
+
+  const { accessToken } = await generateTokens(res, user);
+
+  res.redirect(
+    `${process.env.CLIENT_APP_URL}/#/oauth-success?accessToken=${accessToken}`,
+  );
+
+  return true;
 };
 
 export const authController = {
@@ -113,5 +147,5 @@ export const authController = {
   refresh,
   logout,
   oauthCallback,
+  reissueFacebookSession,
 };
-

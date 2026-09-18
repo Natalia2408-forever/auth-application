@@ -32,25 +32,19 @@ authRouter.get('/refresh', refreshLimiter, catchError(authController.refresh));
 
 authRouter.post('/logout', authMiddleware, catchError(authController.logout));
 
-const processedFacebookCodes = new Set();
-
-function facebookCallbackGuard(req, res, next) {
+const facebookCallbackGuard = catchError(async (req, res, next) => {
   const { code } = req.query;
 
   if (!code) {
     return next();
   }
 
-  if (processedFacebookCodes.has(code)) {
-    return res.redirect(
-      `${process.env.CLIENT_APP_URL}/#/login?error=facebook_callback_reused`,
-    );
+  const handled = await authController.reissueFacebookSession(req, res);
+
+  if (!handled) {
+    next();
   }
-
-  processedFacebookCodes.add(code);
-
-  next();
-}
+});
 
 function registerOAuthRoutes(provider, scope) {
   if (!enabledOAuthProviders[provider]) {
