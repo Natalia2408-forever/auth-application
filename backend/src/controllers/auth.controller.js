@@ -12,13 +12,11 @@ async function generateTokens(res, user) {
 
   await tokenService.save(normalizedUser.id, refreshToken);
 
-  const isProd = process.env.NODE_ENV === 'production';
-
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
     maxAge: 30 * 24 * 60 * 60 * 1000,
-    secure: isProd,
-    sameSite: isProd ? 'none' : 'lax',
+    secure: true,
+    sameSite: 'none',
   });
 
   return { user: normalizedUser, accessToken };
@@ -93,7 +91,11 @@ const logout = async (req, res) => {
   if (userData) {
     await tokenService.remove(userData.id);
   }
-  res.clearCookie('refreshToken');
+  res.clearCookie('refreshToken', {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+  });
   res.sendStatus(204);
 };
 
@@ -112,3 +114,4 @@ export const authController = {
   logout,
   oauthCallback,
 };
+
