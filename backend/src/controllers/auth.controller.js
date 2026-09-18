@@ -75,7 +75,7 @@ const refresh = async (req, res) => {
     throw ApiError.unauthorized();
   }
 
-  const user = await userService.findByEmail(userData.email);
+  const user = await userService.findById(userData.id);
   const data = await generateTokens(res, user);
 
   res.send(data);

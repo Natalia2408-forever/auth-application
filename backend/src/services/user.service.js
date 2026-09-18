@@ -9,6 +9,10 @@ function findByEmail(email) {
   return User.findOne({ where: { email } });
 }
 
+function findById(id) {
+  return User.findByPk(id);
+}
+
 async function register(name, email, hashedPassword) {
   const existUser = await findByEmail(email);
 
@@ -31,4 +35,5 @@ export const userService = {
   normalize,
   findByEmail,
   register,
+  findById
 };
