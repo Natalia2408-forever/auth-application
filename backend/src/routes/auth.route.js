@@ -32,6 +32,26 @@ authRouter.get('/refresh', refreshLimiter, catchError(authController.refresh));
 
 authRouter.post('/logout', authMiddleware, catchError(authController.logout));
 
+const processedFacebookCodes = new Set();
+
+function facebookCallbackGuard(req, res, next) {
+  const { code } = req.query;
+
+  if (!code) {
+    return next();
+  }
+
+  if (processedFacebookCodes.has(code)) {
+    return res.redirect(
+      `${process.env.CLIENT_APP_URL}/#/login?error=facebook_callback_reused`,
+    );
+  }
+
+  processedFacebookCodes.add(code);
+
+  next();
+}
+
 function registerOAuthRoutes(provider, scope) {
   if (!enabledOAuthProviders[provider]) {
     authRouter.get(`/auth/${provider}`, (req, res) => {
@@ -48,6 +68,20 @@ function registerOAuthRoutes(provider, scope) {
     passport.authenticate(provider, { scope, session: false }),
   );
 
+  if (provider === 'facebook') {
+    authRouter.get(
+      `/auth/${provider}/callback`,
+      facebookCallbackGuard,
+      passport.authenticate(provider, {
+        session: false,
+        failureRedirect: `${process.env.CLIENT_APP_URL}/#/login`,
+      }),
+      catchError(authController.oauthCallback),
+    );
+
+    return;
+  }
+
   authRouter.get(
     `/auth/${provider}/callback`,
     passport.authenticate(provider, {
@@ -61,3 +95,4 @@ function registerOAuthRoutes(provider, scope) {
 registerOAuthRoutes('google', ['profile', 'email']);
 registerOAuthRoutes('facebook', ['email']);
 registerOAuthRoutes('github', ['user:email']);
+
