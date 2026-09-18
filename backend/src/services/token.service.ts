@@ -1,6 +1,6 @@
-import { Token } from '../models/token.js';
+import { Token, TokenModel } from '../models/token.js';
 
-async function save(userId, newToken) {
+async function save(userId: number, newToken: string): Promise<void> {
   const token = await Token.findOne({ where: { userId } });
 
   if (!token) {
@@ -13,11 +13,11 @@ async function save(userId, newToken) {
   await token.save();
 }
 
-function getByToken(refreshToken) {
+function getByToken(refreshToken: string): Promise<TokenModel | null> {
   return Token.findOne({ where: { refreshToken } });
 }
 
-function remove(userId) {
+function remove(userId: number): Promise<number> {
   return Token.destroy({ where: { userId } });
 }
 

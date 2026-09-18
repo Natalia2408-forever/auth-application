@@ -1,4 +1,4 @@
-export function validateEmail(value) {
+export function validateEmail(value: string | undefined): string | null {
   if (!value) {
     return 'Email is required';
   }
@@ -12,7 +12,7 @@ export function validateEmail(value) {
   return null;
 }
 
-export function validatePassword(value) {
+export function validatePassword(value: string | undefined): string | null {
   if (!value) {
     return 'Password is required';
   }

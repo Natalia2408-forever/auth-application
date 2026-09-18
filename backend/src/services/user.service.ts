@@ -1,19 +1,24 @@
-import { User } from '../models/user.js';
+import { User, UserModel } from '../models/user.js';
 import { ApiError } from '../exeptions/api.error.js';
+import { UserPayload } from '../types/user.js';
 
-function normalize({ id, email, name }) {
+function normalize({ id, email, name }: UserPayload): UserPayload {
   return { id, email, name };
 }
 
-function findByEmail(email) {
+function findByEmail(email: string): Promise<UserModel | null> {
   return User.findOne({ where: { email } });
 }
 
-function findById(id) {
+function findById(id: number): Promise<UserModel | null> {
   return User.findByPk(id);
 }
 
-async function register(name, email, hashedPassword) {
+async function register(
+  name: string,
+  email: string,
+  hashedPassword: string,
+): Promise<UserModel> {
   const existUser = await findByEmail(email);
 
   if (existUser) {
@@ -35,5 +40,5 @@ export const userService = {
   normalize,
   findByEmail,
   register,
-  findById
+  findById,
 };

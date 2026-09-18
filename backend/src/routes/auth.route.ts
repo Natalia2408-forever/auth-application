@@ -1,11 +1,12 @@
 import express from 'express';
-import rateLimit from 'express-rate-limit';
+import rateLimit, { RateLimitRequestHandler } from 'express-rate-limit';
 import { catchError } from '../utils/catchError.js';
 import { authController } from '../controllers/auth.controller.js';
 import { authMiddleware } from '../middlewares/authMiddleware.js';
 import { passport, enabledOAuthProviders } from '../config/passport.js';
+import { OAuthProvider } from '../types/user.js';
 
-function makeLimiter(limit) {
+function makeLimiter(limit: number): RateLimitRequestHandler {
   return rateLimit({
     windowMs: 15 * 60 * 1000,
     limit,
@@ -19,7 +20,7 @@ const registrationLimiter = makeLimiter(20);
 const loginLimiter = makeLimiter(20);
 const refreshLimiter = makeLimiter(60);
 
-export const authRouter = new express.Router();
+export const authRouter = express.Router();
 
 authRouter.post(
   '/registration',
@@ -36,7 +37,9 @@ const facebookCallbackGuard = catchError(async (req, res, next) => {
   const { code } = req.query;
 
   if (!code) {
-    return next();
+    next();
+
+    return;
   }
 
   const handled = await authController.reissueFacebookSession(req, res);
@@ -46,7 +49,7 @@ const facebookCallbackGuard = catchError(async (req, res, next) => {
   }
 });
 
-function registerOAuthRoutes(provider, scope) {
+function registerOAuthRoutes(provider: OAuthProvider, scope: string[]): void {
   if (!enabledOAuthProviders[provider]) {
     authRouter.get(`/auth/${provider}`, (req, res) => {
       res.redirect(
@@ -89,4 +92,3 @@ function registerOAuthRoutes(provider, scope) {
 registerOAuthRoutes('google', ['profile', 'email']);
 registerOAuthRoutes('facebook', ['email']);
 registerOAuthRoutes('github', ['user:email']);
-

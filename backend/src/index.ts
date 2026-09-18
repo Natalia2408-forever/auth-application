@@ -1,4 +1,3 @@
-'use strict';
 import 'dotenv/config';
 import express from 'express';
 import cookieParser from 'cookie-parser';
@@ -13,7 +12,7 @@ if (!process.env.JWT_KEY || !process.env.JWT_REFRESH_KEY) {
   throw new Error('JWT_KEY and JWT_REFRESH_KEY must be set in .env');
 }
 
-const PORT = process.env.PORT || 3005;
+const PORT = Number(process.env.PORT) || 3005;
 const app = express();
 
 app.set('trust proxy', 1);

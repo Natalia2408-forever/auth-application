@@ -1,9 +1,14 @@
 import js from '@eslint/js';
+import tseslint from 'typescript-eslint';
 
 export default [
   js.configs.recommended,
+  ...tseslint.configs.recommended,
   {
-    files: ['src/**/*.js'],
+    ignores: ['dist/**'],
+  },
+  {
+    files: ['src/**/*.ts'],
     ignores: ['**/__tests__/**', '**/*.test.js'],
     languageOptions: {
       ecmaVersion: 'latest',
@@ -38,5 +43,16 @@ export default [
       'no-console': 'off',
     },
   },
+  {
+    files: ['**/*.cjs'],
+    languageOptions: {
+      sourceType: 'commonjs',
+      globals: {
+        module: 'writable',
+        require: 'readonly',
+        process: 'readonly',
+        __dirname: 'readonly',
+      },
+    },
+  },
 ];
-

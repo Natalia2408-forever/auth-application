@@ -1,6 +1,6 @@
 module.exports = {
   testEnvironment: 'node',
-  clearMocks: true,
-  testMatch: ['**/__tests__/**/*.test.js'],
+  moduleFileExtensions: ['ts', 'js', 'json'],
+  transform: { '^.+\\.[jt]s$': 'babel-jest' },
+  moduleNameMapper: { '^(\\.{1,2}/.*)\\.js$': '$1' },
 };
-

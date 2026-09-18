@@ -1,12 +1,37 @@
-import { ApiError } from '../exeptions/api.error.js';
+import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
+import { ApiError } from '../exeptions/api.error.js';
 import { userService } from '../services/user.service.js';
 import { jwtService } from '../services/jwt.service.js';
 import { tokenService } from '../services/token.service.js';
 import { validateEmail, validatePassword } from '../utils/validators.js';
 import { facebookAuthCache } from '../utils/facebookAuthCache.js';
+import { UserPayload } from '../types/user.js';
 
-async function generateTokens(res, user) {
+type RegisterBody = {
+  name?: string;
+  email?: string;
+  password?: string;
+};
+
+type LoginBody = {
+  email?: string;
+  password?: string;
+};
+
+type TokensResult = {
+  user: UserPayload;
+  accessToken: string;
+};
+
+function readCode(req: Request): string | null {
+  return typeof req.query.code === 'string' ? req.query.code : null;
+}
+
+async function generateTokens(
+  res: Response,
+  user: UserPayload,
+): Promise<TokensResult> {
   const normalizedUser = userService.normalize(user);
   const accessToken = jwtService.sign(normalizedUser);
   const refreshToken = jwtService.signRefresh(normalizedUser);
@@ -23,8 +48,8 @@ async function generateTokens(res, user) {
   return { user: normalizedUser, accessToken };
 }
 
-const register = async (req, res) => {
-  const { name, email, password } = req.body;
+const register = async (req: Request, res: Response): Promise<void> => {
+  const { name, email, password } = req.body as RegisterBody;
 
   if (!name) {
     throw ApiError.badRequest('Name is required');
@@ -35,7 +60,7 @@ const register = async (req, res) => {
     password: validatePassword(password),
   };
 
-  if (errors.email || errors.password) {
+  if (errors.email || errors.password || !email || !password) {
     throw ApiError.badRequest('Validation failed', errors);
   }
 
@@ -45,15 +70,20 @@ const register = async (req, res) => {
   res.send({ message: 'Registration successful. You can now log in.' });
 };
 
-const login = async (req, res) => {
-  const { email, password } = req.body;
+const login = async (req: Request, res: Response): Promise<void> => {
+  const { email, password } = req.body as LoginBody;
+
+  if (!email || !password) {
+    throw ApiError.badRequest('Invalid email or password');
+  }
+
   const user = await userService.findByEmail(email);
 
   const isPasswordValid = user?.password
     ? await bcrypt.compare(password, user.password)
     : false;
 
-  if (!isPasswordValid) {
+  if (!user || !isPasswordValid) {
     throw ApiError.badRequest('Invalid email or password');
   }
 
@@ -62,12 +92,14 @@ const login = async (req, res) => {
   res.send(data);
 };
 
-const refresh = async (req, res) => {
+const refresh = async (req: Request, res: Response): Promise<void> => {
   const { refreshToken } = req.cookies;
-  if (!refreshToken) {
+
+  if (!refreshToken || typeof refreshToken !== 'string') {
     throw ApiError.unauthorized();
   }
-  const userData = await jwtService.verifyRefresh(refreshToken);
+
+  const userData = jwtService.verifyRefresh(refreshToken);
   const token = await tokenService.getByToken(refreshToken);
 
   if (!userData || !token) {
@@ -75,23 +107,29 @@ const refresh = async (req, res) => {
   }
 
   const user = await userService.findById(userData.id);
+
+  if (!user) {
+    throw ApiError.unauthorized();
+  }
+
   const data = await generateTokens(res, user);
 
   res.send(data);
 };
 
-const logout = async (req, res) => {
+const logout = async (req: Request, res: Response): Promise<void> => {
   const { refreshToken } = req.cookies;
 
-  if (!refreshToken) {
+  if (!refreshToken || typeof refreshToken !== 'string') {
     throw ApiError.unauthorized();
   }
 
-  const userData = await jwtService.verifyRefresh(refreshToken);
+  const userData = jwtService.verifyRefresh(refreshToken);
 
   if (userData) {
     await tokenService.remove(userData.id);
   }
+
   res.clearCookie('refreshToken', {
     httpOnly: true,
     secure: true,
@@ -100,10 +138,16 @@ const logout = async (req, res) => {
   res.sendStatus(204);
 };
 
-const oauthCallback = async (req, res) => {
-  const { user, accessToken } = await generateTokens(res, req.user);
+const oauthCallback = async (req: Request, res: Response): Promise<void> => {
+  const currentUser = req.user as UserPayload | undefined;
 
-  const { code } = req.query;
+  if (!currentUser) {
+    throw ApiError.unauthorized();
+  }
+
+  const { user, accessToken } = await generateTokens(res, currentUser);
+
+  const code = readCode(req);
 
   if (code) {
     facebookAuthCache.setUserId(code, user.id);
@@ -114,12 +158,11 @@ const oauthCallback = async (req, res) => {
   );
 };
 
-// Called from the facebookCallbackGuard middleware when a Facebook `code`
-// has already been used once. Instead of rejecting the duplicate request,
-// we issue a fresh session (cookie + accessToken) for the same user, so
-// whichever of the two requests actually reaches the user's browser works.
-const reissueFacebookSession = async (req, res) => {
-  const { code } = req.query;
+const reissueFacebookSession = async (
+  req: Request,
+  res: Response,
+): Promise<boolean> => {
+  const code = readCode(req);
   const cachedUserId = code ? facebookAuthCache.getUserId(code) : null;
 
   if (!cachedUserId) {
