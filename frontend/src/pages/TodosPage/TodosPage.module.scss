@@ -160,25 +160,40 @@
 }
 
 .titleError {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin: 0;
-  padding: 10px 16px;
+  padding: 0 16px;
+  max-height: 0;
+  overflow: hidden;
   background: $danger-bg;
   color: $danger;
   font-size: 13px;
-  border-bottom: 1px solid $border-light;
-  animation: errorAppear 0.15s ease;
+  font-weight: 500;
+  border-left: 3px solid $danger;
+  border-bottom: 1px solid transparent;
+  opacity: 0;
+  transform: translateY(-6px) scale(0.98);
+  transition:
+    max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    padding 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.18s ease,
+    transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@keyframes errorAppear {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
+.titleErrorVisible {
+  max-height: 44px;
+  padding: 10px 16px;
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  border-bottom-color: $border-light;
+}
 
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.titleErrorIcon {
+  flex-shrink: 0;
+  width: 15px;
+  height: 15px;
 }
 
 .empty {

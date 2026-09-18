@@ -12,7 +12,7 @@ export const usePageError = (
 
     const timerId = setTimeout(() => {
       setError('');
-    }, 3000);
+    }, 1600);
 
     return () => {
       clearTimeout(timerId);

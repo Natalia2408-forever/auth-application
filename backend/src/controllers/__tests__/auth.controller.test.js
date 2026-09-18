@@ -173,7 +173,15 @@ describe('authController.logout', () => {
     await authController.logout(req, res);
 
     expect(tokenService.remove).toHaveBeenCalledWith(FAKE_USER.id);
-    expect(res.clearCookie).toHaveBeenCalledWith('refreshToken');
+    expect(res.clearCookie).toHaveBeenCalledWith(
+      'refreshToken',
+      expect.objectContaining({
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+      }),
+    );
     expect(res.sendStatus).toHaveBeenCalledWith(204);
   });
 });
+

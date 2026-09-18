@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { AppHeader } from '../../components/AppHeader/AppHeader';
@@ -30,6 +30,24 @@ export const TodosPage = () => {
     handleRemove,
     handleClearCompleted,
   } = useTodos(user);
+
+  // Keeps the banner mounted for the duration of the exit transition,
+  // instead of yanking it out of the DOM the instant titleError clears.
+  const [errorMessage, setErrorMessage] = useState('');
+  const [errorVisible, setErrorVisible] = useState(false);
+
+  useEffect(() => {
+    if (!titleError) {
+      setErrorVisible(false);
+
+      return;
+    }
+
+    setErrorMessage(titleError);
+    const id = requestAnimationFrame(() => setErrorVisible(true));
+
+    return () => cancelAnimationFrame(id);
+  }, [titleError]);
 
   return (
     <div className={styles.page}>
@@ -72,7 +90,28 @@ export const TodosPage = () => {
             </button>
           </form>
 
-          {titleError && <p className={styles.titleError}>{titleError}</p>}
+          {errorMessage && (
+            <p
+              className={`${styles.titleError} ${errorVisible ? styles.titleErrorVisible : ''}`}
+              onTransitionEnd={() => {
+                if (!errorVisible) {
+                  setErrorMessage('');
+                }
+              }}
+            >
+              <svg
+                className={styles.titleErrorIcon}
+                viewBox="0 0 20 20"
+                fill="none"
+                aria-hidden="true"
+              >
+                <circle cx="10" cy="10" r="9" stroke="currentColor" strokeWidth="1.5" />
+                <path d="M10 6v5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                <circle cx="10" cy="13.5" r="1" fill="currentColor" />
+              </svg>
+              {errorMessage}
+            </p>
+          )}
 
           {todos.length > 0 && (
             <ul className={styles.list}>
