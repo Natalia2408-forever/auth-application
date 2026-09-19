@@ -23,7 +23,7 @@ type TokenColumns = Pick<InferAttributes<TokenModel>, 'refreshToken'>;
 
 export const Token = client.define<TokenModel, TokenColumns>('token', {
   refreshToken: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     allowNull: false,
   },
 });

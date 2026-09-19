@@ -1,5 +1,5 @@
 import { User, UserModel } from '../models/user.js';
-import { ApiError } from '../exeptions/api.error.js';
+import { ApiError } from '../exceptions/api.error.js';
 import { UserPayload } from '../types/user.js';
 
 function normalize({ id, email, name }: UserPayload): UserPayload {

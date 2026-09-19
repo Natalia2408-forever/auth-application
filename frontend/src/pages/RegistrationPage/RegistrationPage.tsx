@@ -5,18 +5,16 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
 import cn from 'classnames';
 
-import { authService } from '../../services/authService.js';
-import { AuthContext } from '../../components/AuthContext/index.js';
-import { AuthLayout } from '../../components/AuthLayout/index.js';
-import { SocialAuthButtons } from '../../components/SocialAuthButtons/index.js';
-import { usePageError } from '../../hooks/usePageError.js';
-import { ROUTES } from '../../router/routes.js';
+import { authService } from '../../services/authService';
+import { AuthContext } from '../../components/AuthContext';
+import { AuthLayout } from '../../components/AuthLayout';
+import { SocialAuthButtons } from '../../components/SocialAuthButtons';
+import { usePageError } from '../../hooks/usePageError';
+import { ROUTES } from '../../router/routes';
 import {
-  validateEmail,
-  validatePassword,
-  validatePasswordConfirmation,
-  validateName,
-} from '../../utils/validators.js';
+  validateRegistration,
+  type RegistrationValues,
+} from '../../utils/validators';
 import styles from '../../styles/authForm.module.scss';
 
 export const RegistrationPage = () => {
@@ -26,27 +24,27 @@ export const RegistrationPage = () => {
 
   return (
     <AuthLayout>
-      <Formik
+      <Formik<RegistrationValues>
         initialValues={{
           name: '',
           email: '',
           password: '',
           passwordConfirmation: '',
         }}
+        validate={validateRegistration}
         validateOnMount
         onSubmit={({ name, email, password }, formikHelpers) => {
-          formikHelpers.setSubmitting(true);
+          const credentials = { email: email.trim(), password };
 
           authService
-            .register({ name, email, password })
-            .then(() => login({ email, password }))
+            .register({ name: name.trim(), ...credentials })
+            .then(() => login(credentials))
             .then(() => navigate(ROUTES.todos))
             .catch(err => {
               const data = err.response?.data;
 
               if (data?.errors) {
-                formikHelpers.setFieldError('email', data.errors.email);
-                formikHelpers.setFieldError('password', data.errors.password);
+                formikHelpers.setErrors(data.errors);
               }
 
               setError(data?.message || 'Something went wrong');
@@ -54,7 +52,7 @@ export const RegistrationPage = () => {
             .finally(() => formikHelpers.setSubmitting(false));
         }}
       >
-        {({ touched, errors, isSubmitting, values, isValid }) => (
+        {({ touched, errors, isSubmitting, isValid }) => (
           <Form>
             <h2 className={styles.title}>Sign up</h2>
             <p className={styles.subtitle}>Create an account to get started</p>
@@ -72,7 +70,6 @@ export const RegistrationPage = () => {
                 />
 
                 <Field
-                  validate={validateName}
                   name="name"
                   type="text"
                   id="name"
@@ -102,7 +99,6 @@ export const RegistrationPage = () => {
                 />
 
                 <Field
-                  validate={validateEmail}
                   name="email"
                   type="email"
                   id="email"
@@ -132,7 +128,6 @@ export const RegistrationPage = () => {
                 />
 
                 <Field
-                  validate={validatePassword}
                   name="password"
                   type="password"
                   id="password"
@@ -166,9 +161,6 @@ export const RegistrationPage = () => {
                 />
 
                 <Field
-                  validate={(value: string) =>
-                    validatePasswordConfirmation(value, values.password)
-                  }
                   name="passwordConfirmation"
                   type="password"
                   id="passwordConfirmation"

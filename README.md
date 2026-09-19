@@ -1,6 +1,6 @@
 # Auth Application — authentication system with JWT and social login
 
-Full-stack authentication application built with Node.js/Express on the backend and React on the frontend, from scratch.
+Full-stack authentication application built with Node.js/Express and React, both written in TypeScript, from scratch.
 
 🔗 Live Demo: https://natalia2408-forever.github.io/auth-application/
 
@@ -10,9 +10,9 @@ This is an educational full-stack project implementing a complete authentication
 🛠 Technologies
 
 Backend
-* Node.js / Express 5 – REST API server and routing.
+* Node.js / Express 5 + TypeScript – REST API server and routing.
 * Sequelize – ORM for working with PostgreSQL (User and Token models).
-* PostgreSQL – relational database.
+* PostgreSQL – relational database (works with a local server or a hosted one such as Neon).
 * JWT (jsonwebtoken) – access and refresh token generation/verification.
 * bcrypt – password hashing.
 * Passport.js – Google, Facebook and GitHub OAuth strategies.
@@ -21,7 +21,7 @@ Backend
 * Jest – unit tests for the auth controller (registration, login, refresh, logout).
 
 Frontend
-* React – built with functional components and Hooks (useState, useEffect, useContext) for a dynamic UI.
+* React + TypeScript – functional components and Hooks (useState, useEffect, useContext).
 * React Router (HashRouter) – client-side navigation with protected/guest-only routes.
 * Axios – HTTP client with credentials support for cookie-based refresh flow.
 * Formik – form state and validation.
@@ -30,7 +30,8 @@ Frontend
 * Vite – fast dev server and build tool.
 
 🎯 Key Features
-* Registration with client-side email/password validation and password confirmation.
+* Registration with client-side validation and password confirmation.
+* The same validation rules on the client and on the server; the submit button stays disabled until the form is valid.
 * Instant login right after registration — no email step required.
 * JWT access + refresh tokens, with silent refresh via an httpOnly cookie.
 * Logout that revokes the refresh token and clears the cookie.
@@ -40,21 +41,24 @@ Frontend
 
 ▶️ How to run
 
-Clone repository:
-* git clone https://github.com/Natalia2408-forever/auth-application.git
-* cd auth-application
+Requirements: Node.js 20+ and a PostgreSQL database (local or hosted, e.g. Neon).
 
-Backend:
-* cd backend
-* npm install
-* Copy .env.example to .env and fill in your own values
-* npm run dev
-
-Frontend:
-* cd frontend
-* npm install
-* Copy .env.example to .env and fill in your own values
-* npm start
+1. Clone the repository
+   * git clone https://github.com/Natalia2408-forever/auth-application.git
+   * cd auth-application
+2. Prepare a database. Tables are created automatically on start, but the database itself must exist
+   * local: createdb auth_app
+   * hosted (Neon etc.): create a database in the dashboard and use its connection details in the .env
+3. Backend
+   * cd backend
+   * npm install
+   * cp .env.example .env and fill in your own values
+   * npm run dev
+4. Frontend
+   * cd frontend
+   * npm install
+   * cp .env.example .env and set VITE_API_URL
+   * npm start
 
 🧪 Tests
 * cd backend

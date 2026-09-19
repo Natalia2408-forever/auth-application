@@ -1,24 +1,9 @@
 import axios, { type AxiosInstance, type AxiosRequestConfig } from 'axios';
 
-interface ApiClient extends Omit<
-  AxiosInstance,
-  'get' | 'post' | 'put' | 'patch' | 'delete'
-> {
+interface ApiClient extends Omit<AxiosInstance, 'get' | 'post' | 'delete'> {
   get<T>(url: string, config?: AxiosRequestConfig): Promise<T>;
 
   post<T>(
-    url: string,
-    data?: Record<string, string | number | boolean | null>,
-    config?: AxiosRequestConfig,
-  ): Promise<T>;
-
-  put<T>(
-    url: string,
-    data?: Record<string, string | number | boolean | null>,
-    config?: AxiosRequestConfig,
-  ): Promise<T>;
-
-  patch<T>(
     url: string,
     data?: Record<string, string | number | boolean | null>,
     config?: AxiosRequestConfig,

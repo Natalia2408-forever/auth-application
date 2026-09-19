@@ -13,7 +13,7 @@
     "sourceMap": true,
     "types": ["node"]
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/controllers/__tests__/auth.controller.test.js"],
   "exclude": ["node_modules", "dist", "src/**/__tests__/**"]
 }
 

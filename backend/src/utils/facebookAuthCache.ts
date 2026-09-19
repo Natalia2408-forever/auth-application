@@ -1,4 +1,4 @@
-const TTL_MS = 5 * 60 * 1000;
+const TTL_MS = 60 * 1000;
 
 type CacheEntry = {
   userId: number;
@@ -25,7 +25,10 @@ export const facebookAuthCache = {
 
     return entry ? entry.userId : null;
   },
+
   setUserId(code: string, userId: number): void {
+    cleanup();
+
     cache.set(code, { userId, expiresAt: Date.now() + TTL_MS });
   },
 };

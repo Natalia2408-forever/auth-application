@@ -3,8 +3,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { AuthContext } from '../../components/AuthContext';
 import { Loader } from '../../components/Loader';
-import { accessTokenService } from '../../services/accessTokenService.js';
-import { ROUTES } from '../../router/routes.js';
+import { accessTokenService } from '../../services/accessTokenService';
+import { ROUTES } from '../../router/routes';
 
 export const OAuthSuccessPage = () => {
   const navigate = useNavigate();

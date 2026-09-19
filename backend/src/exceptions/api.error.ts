@@ -1,4 +1,4 @@
-export type ValidationErrors = Record<string, string | null>;
+export type ValidationErrors = Record<string, string | undefined>;
 
 type ApiErrorOptions = {
   message: string;

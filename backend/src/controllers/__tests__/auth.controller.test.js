@@ -29,8 +29,12 @@ const FAKE_USER = {
   password: 'hashed-pass',
 };
 
+beforeEach(() => {
+  jest.resetAllMocks();
+});
+
 describe('authController.register', () => {
-  it('throws 400 when name is missing', async () => {
+  it('throws 400 with a field error when name is missing', async () => {
     const req = mockRequest({
       email: 'a@a.com',
       password: 'abc123',
@@ -40,7 +44,38 @@ describe('authController.register', () => {
 
     await expect(authController.register(req, res)).rejects.toMatchObject({
       status: 400,
-      message: 'Name is required',
+      message: 'Validation failed',
+      errors: { name: 'Name is required' },
+    });
+  });
+
+  it('throws 400 when name is only spaces', async () => {
+    const req = mockRequest({
+      name: '   ',
+      email: 'a@a.com',
+      password: 'abc123',
+    });
+
+    await expect(
+      authController.register(req, mockResponse()),
+    ).rejects.toMatchObject({
+      status: 400,
+      errors: { name: 'Name is required' },
+    });
+  });
+
+  it('throws 400 when name is longer than 50 characters', async () => {
+    const req = mockRequest({
+      name: 'N'.repeat(51),
+      email: 'a@a.com',
+      password: 'abc123',
+    });
+
+    await expect(
+      authController.register(req, mockResponse()),
+    ).rejects.toMatchObject({
+      status: 400,
+      errors: { name: 'Name must be at most 50 characters long' },
     });
   });
 
@@ -55,7 +90,26 @@ describe('authController.register', () => {
     await expect(authController.register(req, res)).rejects.toMatchObject({
       status: 400,
       message: 'Validation failed',
+      errors: {
+        email: 'Email is not valid',
+        password: 'Password must be at least 6 characters long',
+      },
     });
+  });
+
+  it('throws 400 (not a TypeError) when there is no body or values are not strings', async () => {
+    const res = mockResponse();
+
+    await expect(
+      authController.register(mockRequest(undefined), res),
+    ).rejects.toMatchObject({ status: 400, message: 'Validation failed' });
+
+    await expect(
+      authController.register(
+        mockRequest({ name: 1, email: {}, password: [] }),
+        res,
+      ),
+    ).rejects.toMatchObject({ status: 400, message: 'Validation failed' });
   });
 
   it('hashes the password and creates the user when data is valid', async () => {
@@ -79,6 +133,24 @@ describe('authController.register', () => {
     );
 
     expect(res.send).toHaveBeenCalled();
+  });
+
+  it('trims the name and normalizes the email before saving', async () => {
+    const req = mockRequest({
+      name: '  Natalia  ',
+      email: '  Natalia@Example.COM ',
+      password: 'abc123',
+    });
+
+    bcrypt.hash.mockResolvedValue('hashed-pass');
+
+    await authController.register(req, mockResponse());
+
+    expect(userService.register).toHaveBeenCalledWith(
+      'Natalia',
+      'natalia@example.com',
+      'hashed-pass',
+    );
   });
 });
 
@@ -184,4 +256,3 @@ describe('authController.logout', () => {
     expect(res.sendStatus).toHaveBeenCalledWith(204);
   });
 });
-

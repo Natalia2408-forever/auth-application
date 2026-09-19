@@ -4,7 +4,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import { authRouter } from './routes/auth.route.js';
 import { errorMiddleware } from './middlewares/errorMiddleware.js';
-import { ApiError } from './exeptions/api.error.js';
+import { ApiError } from './exceptions/api.error.js';
 import { passport } from './config/passport.js';
 import { client } from './utils/db.js';
 

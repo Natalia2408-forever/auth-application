@@ -1,28 +1,27 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
-import { ApiError } from '../exeptions/api.error.js';
+
+import { ApiError } from '../exceptions/api.error.js';
 import { userService } from '../services/user.service.js';
 import { jwtService } from '../services/jwt.service.js';
 import { tokenService } from '../services/token.service.js';
-import { validateEmail, validatePassword } from '../utils/validators.js';
+import {
+  normalizeEmail,
+  validateEmail,
+  validateName,
+  validatePassword,
+} from '../utils/validators.js';
 import { facebookAuthCache } from '../utils/facebookAuthCache.js';
 import { UserPayload } from '../types/user.js';
-
-type RegisterBody = {
-  name?: string;
-  email?: string;
-  password?: string;
-};
-
-type LoginBody = {
-  email?: string;
-  password?: string;
-};
 
 type TokensResult = {
   user: UserPayload;
   accessToken: string;
 };
+
+function readString(value: unknown): string | undefined {
+  return typeof value === 'string' ? value : undefined;
+}
 
 function readCode(req: Request): string | null {
   return typeof req.query.code === 'string' ? req.query.code : null;
@@ -49,35 +48,46 @@ async function generateTokens(
 }
 
 const register = async (req: Request, res: Response): Promise<void> => {
-  const { name, email, password } = req.body as RegisterBody;
-
-  if (!name) {
-    throw ApiError.badRequest('Name is required');
-  }
+  // Express 5: req.body is undefined when no body was parsed
+  const body = (req.body ?? {}) as Record<string, unknown>;
+  const name = readString(body.name);
+  const email = readString(body.email);
+  const password = readString(body.password);
 
   const errors = {
+    name: validateName(name),
     email: validateEmail(email),
     password: validatePassword(password),
   };
 
-  if (errors.email || errors.password || !email || !password) {
+  if (
+    errors.name ||
+    errors.email ||
+    errors.password ||
+    !name ||
+    !email ||
+    !password
+  ) {
     throw ApiError.badRequest('Validation failed', errors);
   }
 
   const hashedPass = await bcrypt.hash(password, 10);
 
-  await userService.register(name, email, hashedPass);
+  await userService.register(name.trim(), normalizeEmail(email), hashedPass);
+
   res.send({ message: 'Registration successful. You can now log in.' });
 };
 
 const login = async (req: Request, res: Response): Promise<void> => {
-  const { email, password } = req.body as LoginBody;
+  const body = (req.body ?? {}) as Record<string, unknown>;
+  const email = readString(body.email);
+  const password = readString(body.password);
 
   if (!email || !password) {
     throw ApiError.badRequest('Invalid email or password');
   }
 
-  const user = await userService.findByEmail(email);
+  const user = await userService.findByEmail(normalizeEmail(email));
 
   const isPasswordValid = user?.password
     ? await bcrypt.compare(password, user.password)

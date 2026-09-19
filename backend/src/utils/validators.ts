@@ -1,18 +1,36 @@
-export function validateEmail(value: string | undefined): string | null {
+const EMAIL_PATTERN = /^[\w.+-]+@([\w-]+\.){1,3}[\w-]{2,}$/;
+
+export const NAME_MAX_LENGTH = 50;
+
+export function normalizeEmail(value: string): string {
+  return value.trim().toLowerCase();
+}
+
+export function validateName(value: string | undefined): string | undefined {
+  const name = value?.trim();
+
+  if (!name) {
+    return 'Name is required';
+  }
+
+  if (name.length > NAME_MAX_LENGTH) {
+    return `Name must be at most ${NAME_MAX_LENGTH} characters long`;
+  }
+}
+
+export function validateEmail(value: string | undefined): string | undefined {
   if (!value) {
     return 'Email is required';
   }
 
-  const emailPattern = /^[\w.+-]+@([\w-]+\.){1,3}[\w-]{2,}$/;
-
-  if (!emailPattern.test(value)) {
+  if (!EMAIL_PATTERN.test(value.trim())) {
     return 'Email is not valid';
   }
-
-  return null;
 }
 
-export function validatePassword(value: string | undefined): string | null {
+export function validatePassword(
+  value: string | undefined,
+): string | undefined {
   if (!value) {
     return 'Password is required';
   }
@@ -24,6 +42,4 @@ export function validatePassword(value: string | undefined): string | null {
   if (!/[A-Za-z]/.test(value) || !/\d/.test(value)) {
     return 'Password must contain at least one letter and one digit';
   }
-
-  return null;
 }

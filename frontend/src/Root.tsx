@@ -3,7 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { App } from './App';
 import { AuthContext } from './components/AuthContext/AuthContext';
 import { RequireAuth } from './components/RequireAuth/RequireAuth';
-import { RequireNonAuth } from './components/RequiereNonAuth/RequireNonAuth';
+import { RequireNonAuth } from './components/RequireNonAuth/RequireNonAuth';
 import { Loader } from './components/Loader/Loader';
 import { ROUTES } from './router/routes';
 import {
